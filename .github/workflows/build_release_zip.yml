@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version, for example v2.41.2"
+        description: "Version, for example v1.5.2"
         required: false
         type: string
 
@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Get and set version
         shell: bash
@@ -34,8 +34,8 @@ jobs:
             version="$(printf '%s\n' "$message" | grep -oE 'v[0-9]+(\.[0-9]+){1,2}' | head -n 1)"
           fi
 
-          if ! [[ "$version" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Invalid or missing version: $version"
+          if [ -z "$version" ]; then
+            echo "No version found in commit message"
             exit 1
           fi
 
