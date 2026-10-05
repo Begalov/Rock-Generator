@@ -1,12 +1,12 @@
 # Paul "BrikBot" Marshall
 # Created: July 1, 2011
-# Last Modified: September 26, 2013
+# Last Modified: October 10, 2026 by RUben Begalov@gmail.com
 # Homepage (blog): http://post.darkarsenic.com/
 #                       //blog.darkarsenic.com/
 # Thanks to Meta-Androco, RickyBlender, Ace Dragon, and PKHG for ideas
 #   and testing.
 #
-# Coded in IDLE, tested in Blender 2.68a.  NumPy Recommended.
+# Coded in IDLE, Sublime Text, tested in Blender 3.6, 5.2.  NumPy Recommended.
 # Search for "@todo" to quickly find sections that need work.
 #
 # ##### BEGIN GPL LICENSE BLOCK #####
@@ -35,8 +35,8 @@
 bl_info = {
     "name": "Rock Generator",
     "author": "Paul Marshall (brikbot)",
-    "version": (1, 4),
-    "blender": (2, 80, 0),
+    "version": (1, 5),
+    "blender": (5, 2, 2),
     "location": "View3D > Add > Rock Generator",
     "description": "Adds a mesh rock to the Add Mesh menu",
     "wiki_url": "http://wiki.blender.org/index.php/Extensions:2.6/Py/"

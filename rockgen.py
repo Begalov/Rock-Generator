@@ -169,7 +169,7 @@ def createMeshObject(context, verts, edges, faces, name):
     mesh.from_pydata(verts, edges, faces)
 
     # Set mesh to use auto smoothing:
-    mesh.use_auto_smooth = True
+    # mesh.use_auto_smooth = True
 
     # Update mesh geometry after adding stuff.
     mesh.update()
@@ -205,6 +205,7 @@ def generateObject(context, muX, sigmaX, scaleX, upperSkewX, muY, sigmaY,
     y = []
     z = []
     shape = randint(0, 11)
+    mesh_edge_creases = dict() # for crease attribute 261005
 
     # Cube
     # Use parameters to re-scale cube:
@@ -673,6 +674,8 @@ def generateObject(context, muX, sigmaX, scaleX, upperSkewX, muY, sigmaY,
     # Make object:
     obj = createMeshObject(context, verts, [], faces, name)
 
+    # wip possible plase for bpy.ops.object.shade_auto_smooth
+
     if scaleDisplace:
         # bpy.data.objects[name].scale = Vector((averageX, averageY, averageZ))
         obj.scale = Vector((averageX, averageY, averageZ))
@@ -686,60 +689,69 @@ def generateObject(context, muX, sigmaX, scaleX, upperSkewX, muY, sigmaY,
         for i in range(12):
             # todo: "0.375 / 3"?  WTF?  That = 0.125. . . .
             #   *** Completed 7/15/2011: Changed second one ***
-            mesh.edges[i].crease = gauss(0.125, 0.125)
+            mesh_edge_creases[i] = gauss(0.125, 0.125)
     elif shape == 1:
         for i in [0, 2]:
-            mesh.edges[i].crease = gauss(0.5, 0.125)
+            mesh_edge_creases[i] = gauss(0.5, 0.125)
         for i in [6, 9, 11, 12]:
-            mesh.edges[i].crease = gauss(0.25, 0.05)
+            mesh_edge_creases[i] = gauss(0.25, 0.05)
         for i in [5, 7, 15, 16]:
-            mesh.edges[i].crease = gauss(0.125, 0.025)
+            mesh_edge_creases[i] = gauss(0.125, 0.025)
     elif shape == 2:
         for i in range(18):
-            mesh.edges[i].crease = gauss(0.125, 0.025)
+            mesh_edge_creases[i] = gauss(0.125, 0.025)
     elif shape == 3:
         for i in [0, 1, 6, 10, 13]:
-            mesh.edges[i].crease = gauss(0.25, 0.05)
-        mesh.edges[8].crease = gauss(0.5, 0.125)
+            mesh_edge_creases[i] = gauss(0.25, 0.05)
+        mesh_edge_creases[8] = gauss(0.5, 0.125)
     elif shape == 4:
         for i in [5, 6, 7, 10, 14, 16, 19, 21]:
-            mesh.edges[i].crease = gauss(0.5, 0.125)
+            mesh_edge_creases[i] = gauss(0.5, 0.125)
     elif shape == 7:
         for i in range(18):
             if i in [0, 1, 2, 3, 6, 7, 8, 9, 13, 16]:
-                mesh.edges[i].crease = gauss(0.5, 0.125)
+                mesh_edge_creases[i] = gauss(0.5, 0.125)
             elif i in [11, 17]:
-                mesh.edges[i].crease = gauss(0.25, 0.05)
+                mesh_edge_creases[i] = gauss(0.25, 0.05)
             else:
-                mesh.edges[i].crease = gauss(0.125, 0.025)
+                mesh_edge_creases[i] = gauss(0.125, 0.025)
     elif shape == 8:
         for i in range(12):
             if i in [0, 3, 8, 9, 10]:
-                mesh.edges[i].crease = gauss(0.5, 0.125)
+                mesh_edge_creases[i] = gauss(0.5, 0.125)
             elif i == 11:
-                mesh.edges[i].crease = gauss(0.25, 0.05)
+                mesh_edge_creases[i] = gauss(0.25, 0.05)
             else:
-                mesh.edges[i].crease = gauss(0.125, 0.025)
+                mesh_edge_creases[i] = gauss(0.125, 0.025)
     elif shape == 9:
         for i in range(12):
             if i in [0, 3, 4, 11]:
-                mesh.edges[i].crease = gauss(0.5, 0.125)
+                mesh_edge_creases[i] = gauss(0.5, 0.125)
             else:
-                mesh.edges[i].crease = gauss(0.25, 0.05)
+                mesh_edge_creases[i] = gauss(0.25, 0.05)
     elif shape == 10:
         for i in range(12):
             if i in [0, 2, 3, 4, 8, 11]:
-                mesh.edges[i].crease = gauss(0.5, 0.125)
+                mesh_edge_creases[i] = gauss(0.5, 0.125)
             elif i in [1, 5, 7]:
-                mesh.edges[i].crease = gauss(0.25, 0.05)
+                mesh_edge_creases[i] = gauss(0.25, 0.05)
             else:
-                mesh.edges[i].crease = gauss(0.125, 0.025)
+                mesh_edge_creases[i] = gauss(0.125, 0.025)
     elif shape == 11:
         for i in range(11):
             if i in [1, 2, 3, 4, 8, 11]:
-                mesh.edges[i].crease = gauss(0.25, 0.05)
+                mesh_edge_creases[i] = gauss(0.25, 0.05)
             else:
-                mesh.edges[i].crease = gauss(0.125, 0.025)
+                mesh_edge_creases[i] = gauss(0.125, 0.025)
+
+    # 261005
+    values = [
+        float(mesh_edge_creases.get(edge_index, 0.0))
+        for edge_index in range(len(obj.data.edges))
+    ]
+    obj.data.attributes.new('crease_edge', 'FLOAT', 'EDGE')
+    crease_edge = obj.data.attributes['crease_edge']
+    crease_edge.data.foreach_set("value", values)
 
     return obj
 
