@@ -1,0 +1,70 @@
+name: Build release ZIP
+
+on:
+  release:
+    types: [published]
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version, for example v2.41.2"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Get and set version
+        shell: bash
+        run: |
+          version="${{ inputs.version }}"
+
+          if [ -z "$version" ]; then
+            message="$(git log -1 --pretty=%B)"
+            version="$(printf '%s\n' "$message" | grep -oE 'v[0-9]+(\.[0-9]+){1,2}' | head -n 1)"
+          fi
+
+          if ! [[ "$version" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid or missing version: $version"
+            exit 1
+          fi
+
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Create versioned ZIP
+        shell: bash
+        run: |
+          repo="${{ github.event.repository.name }}"
+          folder="${repo}"
+          zipfile="${repo}-${VERSION}.zip"
+
+          mkdir -p "package/${folder}"
+
+          rsync -a \
+            --exclude=".git" \
+            --exclude=".github" \
+            --exclude=".gitignore" \
+            --exclude="package" \
+            ./ "package/${folder}/"
+
+          cd package
+          zip -r "../${zipfile}" "${folder}"
+
+          echo "ZIP_FILE=${zipfile}" >> "$GITHUB_ENV"
+
+      - name: Create release and upload ZIP
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          files: ${{ env.ZIP_FILE }}
