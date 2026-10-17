@@ -1,7 +1,7 @@
 schema_version = "1.0.0"
 # https://docs.blender.org/manual/en/latest/advanced/extensions/getting_started.html#manifest
 id = "my_example_extension"
-version = "1.5.0"
+version = "1.5.1"
 name = "Rock Generator"
 tagline = "Adds a mesh rock to the Add Mesh menu"
 maintainer = "RUben Begalov@gmail.com"
@@ -9,7 +9,7 @@ type = "add-on"
 website = "https://github.com/Begalov/Rock-Generator"
 tags = ["Add Mesh", "Modeling", "Object"]
 blender_version_min = "3.6.0"
-blender_version_max = "5.2.0"
+# blender_version_max = "5.2.0"
 license = [
   "SPDX:GPL-3.0-or-later",
 ]
